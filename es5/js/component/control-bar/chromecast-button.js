@@ -59,6 +59,7 @@ var ChromeCastButton = (function (_Button) {
             if (_this.casting && _this.apiSession) {
                 _this.apiSession.stop(null, null);
             }
+            _this.disposed = true;
         });
     }
 
@@ -75,7 +76,9 @@ var ChromeCastButton = (function (_Button) {
             var appId = undefined;
             var sessionRequest = undefined;
 
-            if (!_videoJs2['default'].browser.IS_CHROME || _videoJs2['default'].browser.IS_EDGE || typeof chrome === 'undefined') {
+            var user_agent = window.navigator && window.navigator.userAgent || '';
+            var is_chrome = _videoJs2['default'].browser.IS_CHROME || /CriOS/i.test(user_agent);
+            if (!is_chrome || _videoJs2['default'].browser.IS_EDGE || typeof chrome === 'undefined') {
                 return;
             }
             if (!chrome.cast || !chrome.cast.isAvailable) {
@@ -114,6 +117,11 @@ var ChromeCastButton = (function (_Button) {
                 case chrome.cast.ErrorCode.CHANNEL_ERROR:
                 case chrome.cast.ErrorCode.TIMEOUT:
                     this.addClass('error');
+
+                    if (this.options_.onError) {
+                        this.options_.onError.call(this, error);
+                    }
+
                     break;
                 case chrome.cast.ErrorCode.CANCEL:
                     break;
@@ -145,6 +153,7 @@ var ChromeCastButton = (function (_Button) {
     }, {
         key: 'receiverListener',
         value: function receiverListener(availability) {
+            if (this.disposed) return;
             if (availability === 'available') {
                 hasReceiver = true;
                 return this.show();
@@ -156,7 +165,8 @@ var ChromeCastButton = (function (_Button) {
     }, {
         key: 'doLaunch',
         value: function doLaunch() {
-            _videoJs2['default'].log('Cast video: ' + this.player_.cache_.src);
+            var source = this.options_.src || this.player_.cache_.src;
+            _videoJs2['default'].log('Cast video: ' + source);
             if (this.apiInitialized) {
                 return chrome.cast.requestSession(this.onSessionSuccess.bind(this), this.castError.bind(this));
             } else {
@@ -174,8 +184,8 @@ var ChromeCastButton = (function (_Button) {
             var value = undefined;
 
             this.apiSession = session;
-            var source = this.player_.cache_.src;
-            var type = this.player_.currentType();
+            var source = this.options_.src || this.player_.cache_.src;
+            var type = this.options_.type || this.player_.currentType();
 
             _videoJs2['default'].log('Session initialized: ' + session.sessionId + ' source : ' + source + ' type : ' + type);
 
@@ -293,13 +303,18 @@ var ChromeCastButton = (function (_Button) {
             this.casting = false;
             var time = this.player_.currentTime();
             this.removeClass('connected');
-            this.player_.src(this.player_.options_['sources']);
-            if (!this.player_.paused()) {
-                this.player_.one('seeked', function () {
-                    return this.player_.play();
-                });
+
+            if (this.options_.onStop) {
+                this.options_.onStop.call(this, time);
+            } else {
+                this.player_.src(this.player_.options_['sources']);
+                if (!this.player_.paused()) {
+                    this.player_.one('seeked', function () {
+                        return this.player_.play();
+                    });
+                }
+                this.player_.currentTime(time);
             }
-            this.player_.currentTime(time);
             this.player_.options_.inactivityTimeout = this.inactivityTimeout;
             return this.apiSession = null;
         }
