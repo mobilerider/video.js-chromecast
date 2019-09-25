@@ -90,6 +90,11 @@ class ChromeCastButton extends Button {
             case chrome.cast.ErrorCode.CHANNEL_ERROR:
             case chrome.cast.ErrorCode.TIMEOUT:
                 this.addClass('error');
+
+                if (this.options_.onError) {
+                    this.options_.onError.call(this, error);
+                }
+
                 break;
             case chrome.cast.ErrorCode.CANCEL:
                 break;
@@ -130,7 +135,8 @@ class ChromeCastButton extends Button {
     }
 
     doLaunch () {
-        videojs.log('Cast video: ' + (this.player_.cache_.src));
+        const source = this.options_.src || this.player_.cache_.src;
+        videojs.log('Cast video: ' + source);
         if (this.apiInitialized) {
             return chrome.cast.requestSession(::this.onSessionSuccess, ::this.castError);
         } else {
@@ -148,8 +154,8 @@ class ChromeCastButton extends Button {
 
 
         this.apiSession = session;
-        const source = this.player_.cache_.src;
-        const type = this.player_.currentType();
+        const source = this.options_.src || this.player_.cache_.src;
+        const type = this.options_.type || this.player_.currentType();
 
         videojs.log('Session initialized: ' + session.sessionId + ' source : ' + source + ' type : ' + type);
 
@@ -264,13 +270,18 @@ class ChromeCastButton extends Button {
         this.casting = false;
         let time = this.player_.currentTime();
         this.removeClass('connected');
-        this.player_.src(this.player_.options_['sources']);
-        if (!this.player_.paused()) {
-            this.player_.one('seeked', function () {
-                return this.player_.play();
-            });
+
+        if (this.options_.onStop) {
+            this.options_.onStop.call(this, time);
+        } else {
+            this.player_.src(this.player_.options_['sources']);
+            if (!this.player_.paused()) {
+                this.player_.one('seeked', function () {
+                    return this.player_.play();
+                });
+            }
+            this.player_.currentTime(time);
         }
-        this.player_.currentTime(time);
         this.player_.options_.inactivityTimeout = this.inactivityTimeout;
         return this.apiSession = null;
     }
