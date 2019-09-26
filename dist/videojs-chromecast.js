@@ -51,11 +51,6 @@ var ChromeCastButton = (function (_Button) {
 
         _classCallCheck(this, ChromeCastButton);
 
-        _get(Object.getPrototypeOf(ChromeCastButton.prototype), 'constructor', this).call(this, player, options);
-        this.hide();
-        this.initializeApi();
-        this.source = null;
-
         var allowedOptions = ["appId", "src", "type", "onStop", "onError"];
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
@@ -82,6 +77,10 @@ var ChromeCastButton = (function (_Button) {
             }
         }
 
+        _get(Object.getPrototypeOf(ChromeCastButton.prototype), 'constructor', this).call(this, player, options);
+        this.hide();
+        this.initializeApi();
+        this.source = null;
         player.chromecast = this;
 
         this.on(player, 'loadstart', function () {
