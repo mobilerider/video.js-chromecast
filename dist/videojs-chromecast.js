@@ -199,9 +199,13 @@ var ChromeCastButton = (function (_Button) {
     }, {
         key: 'findSource',
         value: function findSource() {
-            return this.source = {
-                src: this.options_.src || this.player_.cache_.src,
-                type: this.options_.type || this.player_.currentType()
+            if (typeof this.options_.source == "function") {
+                return this.source = this.options_.source.call(this);
+            }
+
+            return this.source = this.options_.source || {
+                src: this.player_.cache_.src,
+                type: this.player_.currentType()
             };
         }
     }, {
@@ -347,6 +351,7 @@ var ChromeCastButton = (function (_Button) {
             if (this.options_.onStop) {
                 this.options_.onStop.call(this, this.source, time);
             } else {
+                this.player_.reset();
                 this.player_.src(this.source);
                 if (!this.player_.paused()) {
                     this.player_.one('seeked', function () {
