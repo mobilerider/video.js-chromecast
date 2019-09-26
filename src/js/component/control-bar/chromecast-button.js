@@ -19,16 +19,15 @@ let hasReceiver = false;
 class ChromeCastButton extends Button {
 
     constructor (player, options) {
-        super(player, options);
-        this.hide();
-        this.initializeApi();
-        this.source = null;
-
         const allowedOptions = ["appId", "src", "type", "onStop", "onError"];
         for (let name of allowedOptions) {
             options[name] = player.options_.chromecast[name];
         }
 
+        super(player, options);
+        this.hide();
+        this.initializeApi();
+        this.source = null;
         player.chromecast = this;
 
         this.on(player, 'loadstart', () => {
