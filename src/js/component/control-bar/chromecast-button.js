@@ -23,7 +23,12 @@ class ChromeCastButton extends Button {
         this.hide();
         this.initializeApi();
         this.source = null;
-        options.appId = player.options_.chromecast.appId;
+
+        const allowedOptions = ["appId", "src", "type", "onStop", "onError"];
+        for (let name of allowedOptions) {
+            options[name] = player.options_.chromecast[name];
+        }
+
         player.chromecast = this;
 
         this.on(player, 'loadstart', () => {
