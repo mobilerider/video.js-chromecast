@@ -140,9 +140,13 @@ class ChromeCastButton extends Button {
     }
      
     findSource() {
-        return this.source = {
-            src: this.options_.src || this.player_.cache_.src,
-            type: this.options_.type || this.player_.currentType()
+        if (typeof this.options_.source == "function") {
+            return this.source = this.options_.source.call(this);
+        }
+        
+        return this.source = this.options_.source || {
+            src: this.player_.cache_.src,
+            type: this.player_.currentType()
         };
     }
 
