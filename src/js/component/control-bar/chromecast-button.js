@@ -287,6 +287,7 @@ class ChromeCastButton extends Button {
         if (this.options_.onStop) {
             this.options_.onStop.call(this, this.source, time);
         } else {
+            this.player_.reset();
             this.player_.src(this.source);
             if (!this.player_.paused()) {
                 this.player_.one('seeked', function () {
