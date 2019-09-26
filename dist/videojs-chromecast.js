@@ -55,7 +55,33 @@ var ChromeCastButton = (function (_Button) {
         this.hide();
         this.initializeApi();
         this.source = null;
-        options.appId = player.options_.chromecast.appId;
+
+        var allowedOptions = ["appId", "src", "type", "onStop", "onError"];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+            for (var _iterator = allowedOptions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                var _name = _step.value;
+
+                options[_name] = player.options_.chromecast[_name];
+            }
+        } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+        } finally {
+            try {
+                if (!_iteratorNormalCompletion && _iterator['return']) {
+                    _iterator['return']();
+                }
+            } finally {
+                if (_didIteratorError) {
+                    throw _iteratorError;
+                }
+            }
+        }
+
         player.chromecast = this;
 
         this.on(player, 'loadstart', function () {
