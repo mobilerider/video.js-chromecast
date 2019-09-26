@@ -54,6 +54,7 @@ var ChromeCastButton = (function (_Button) {
         _get(Object.getPrototypeOf(ChromeCastButton.prototype), 'constructor', this).call(this, player, options);
         this.hide();
         this.initializeApi();
+        this.source = null;
         options.appId = player.options_.chromecast.appId;
         player.chromecast = this;
 
@@ -171,10 +172,18 @@ var ChromeCastButton = (function (_Button) {
             }
         }
     }, {
+        key: 'findSource',
+        value: function findSource() {
+            return this.source = {
+                src: this.options_.src || this.player_.cache_.src,
+                type: this.options_.type || this.player_.currentType()
+            };
+        }
+    }, {
         key: 'doLaunch',
         value: function doLaunch() {
-            var source = this.options_.src || this.player_.cache_.src;
-            _videoJs2['default'].log('Cast video: ' + source);
+            this.findSource();
+            _videoJs2['default'].log('Cast video: ' + this.source.src);
             if (this.apiInitialized) {
                 return chrome.cast.requestSession(this.onSessionSuccess.bind(this), this.castError.bind(this));
             } else {
@@ -192,12 +201,10 @@ var ChromeCastButton = (function (_Button) {
             var value = undefined;
 
             this.apiSession = session;
-            var source = this.options_.src || this.player_.cache_.src;
-            var type = this.options_.type || this.player_.currentType();
 
-            _videoJs2['default'].log('Session initialized: ' + session.sessionId + ' source : ' + source + ' type : ' + type);
+            _videoJs2['default'].log('Session initialized: ' + session.sessionId + ' source : ' + this.source.src + ' type : ' + this.source.type);
 
-            mediaInfo = new chrome.cast.media.MediaInfo(source, type);
+            mediaInfo = new chrome.cast.media.MediaInfo(this.source.src, this.source.type);
             mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
             if (this.options_.playerOptions.chromecast.metadata) {
                 ref = this.options_.playerOptions.chromecast.metadata;
@@ -313,9 +320,9 @@ var ChromeCastButton = (function (_Button) {
             this.removeClass('connected');
 
             if (this.options_.onStop) {
-                this.options_.onStop.call(this, time);
+                this.options_.onStop.call(this, this.source, time);
             } else {
-                this.player_.src(this.player_.options_['sources']);
+                this.player_.src(this.source);
                 if (!this.player_.paused()) {
                     this.player_.one('seeked', function () {
                         return this.player_.play();
