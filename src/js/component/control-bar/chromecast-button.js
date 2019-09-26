@@ -19,7 +19,7 @@ let hasReceiver = false;
 class ChromeCastButton extends Button {
 
     constructor (player, options) {
-        const allowedOptions = ["appId", "src", "type", "onStop", "onError"];
+        const allowedOptions = ["appId", "altSource", "onStop", "onError"];
         for (let name of allowedOptions) {
             options[name] = player.options_.chromecast[name];
         }
@@ -140,11 +140,11 @@ class ChromeCastButton extends Button {
     }
      
     findSource() {
-        if (typeof this.options_.source == "function") {
-            return this.source = this.options_.source.call(this);
+        if (typeof this.options_.altSource == "function") {
+            return this.source = this.options_.altSource.call(this);
         }
         
-        return this.source = this.options_.source || {
+        return this.source = this.options_.altSource || {
             src: this.player_.cache_.src,
             type: this.player_.currentType()
         };
