@@ -22,6 +22,7 @@ class ChromeCastButton extends Button {
         super(player, options);
         this.hide();
         this.initializeApi();
+        this.source = null;
         options.appId = player.options_.chromecast.appId;
         player.chromecast = this;
 
@@ -133,10 +134,17 @@ class ChromeCastButton extends Button {
             return this.hide();
         }
     }
+     
+    findSource() {
+        return this.source = {
+            src: this.options_.src || this.player_.cache_.src,
+            type: this.options_.type || this.player_.currentType()
+        };
+    }
 
     doLaunch () {
-        const source = this.options_.src || this.player_.cache_.src;
-        videojs.log('Cast video: ' + source);
+        this.findSource();
+        videojs.log('Cast video: ' + this.source.src);
         if (this.apiInitialized) {
             return chrome.cast.requestSession(::this.onSessionSuccess, ::this.castError);
         } else {
@@ -152,14 +160,11 @@ class ChromeCastButton extends Button {
         let ref;
         let value;
 
-
         this.apiSession = session;
-        const source = this.options_.src || this.player_.cache_.src;
-        const type = this.options_.type || this.player_.currentType();
 
-        videojs.log('Session initialized: ' + session.sessionId + ' source : ' + source + ' type : ' + type);
+        videojs.log('Session initialized: ' + session.sessionId + ' source : ' + this.source.src + ' type : ' + this.source.type);
 
-        mediaInfo = new chrome.cast.media.MediaInfo(source, type);
+        mediaInfo = new chrome.cast.media.MediaInfo(this.source.src, this.source.type);
         mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
         if (this.options_.playerOptions.chromecast.metadata) {
             ref = this.options_.playerOptions.chromecast.metadata;
@@ -272,9 +277,9 @@ class ChromeCastButton extends Button {
         this.removeClass('connected');
 
         if (this.options_.onStop) {
-            this.options_.onStop.call(this, time);
+            this.options_.onStop.call(this, this.source, time);
         } else {
-            this.player_.src(this.player_.options_['sources']);
+            this.player_.src(this.source);
             if (!this.player_.paused()) {
                 this.player_.one('seeked', function () {
                     return this.player_.play();
