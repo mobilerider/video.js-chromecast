@@ -51,7 +51,7 @@ var ChromeCastButton = (function (_Button) {
 
         _classCallCheck(this, ChromeCastButton);
 
-        var allowedOptions = ["appId", "src", "type", "onStop", "onError"];
+        var allowedOptions = ["appId", "altSource", "onStop", "onError"];
         var _iteratorNormalCompletion = true;
         var _didIteratorError = false;
         var _iteratorError = undefined;
@@ -199,11 +199,11 @@ var ChromeCastButton = (function (_Button) {
     }, {
         key: 'findSource',
         value: function findSource() {
-            if (typeof this.options_.source == "function") {
-                return this.source = this.options_.source.call(this);
+            if (typeof this.options_.altSource == "function") {
+                return this.source = this.options_.altSource.call(this);
             }
 
-            return this.source = this.options_.source || {
+            return this.source = this.options_.altSource || {
                 src: this.player_.cache_.src,
                 type: this.player_.currentType()
             };
