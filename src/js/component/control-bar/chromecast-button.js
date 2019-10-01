@@ -20,9 +20,9 @@ class ChromeCastButton extends Button {
 
     constructor (player, options) {
         const allowedOptions = ["appId", "altSource", "onStop", "onError"];
-        for (let name of allowedOptions) {
-            options[name] = player.options_.chromecast[name];
-        }
+        allowedOptions.forEach(opt => {
+            options[opt] = player.options_.chromecast[opt];
+        });
 
         super(player, options);
         this.hide();
