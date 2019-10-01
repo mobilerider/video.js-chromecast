@@ -52,30 +52,9 @@ var ChromeCastButton = (function (_Button) {
         _classCallCheck(this, ChromeCastButton);
 
         var allowedOptions = ["appId", "altSource", "onStop", "onError"];
-        var _iteratorNormalCompletion = true;
-        var _didIteratorError = false;
-        var _iteratorError = undefined;
-
-        try {
-            for (var _iterator = allowedOptions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                var _name = _step.value;
-
-                options[_name] = player.options_.chromecast[_name];
-            }
-        } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-        } finally {
-            try {
-                if (!_iteratorNormalCompletion && _iterator['return']) {
-                    _iterator['return']();
-                }
-            } finally {
-                if (_didIteratorError) {
-                    throw _iteratorError;
-                }
-            }
-        }
+        allowedOptions.forEach(function (opt) {
+            options[opt] = player.options_.chromecast[opt];
+        });
 
         _get(Object.getPrototypeOf(ChromeCastButton.prototype), 'constructor', this).call(this, player, options);
         this.hide();
@@ -1028,7 +1007,7 @@ module.exports = exports['default'];
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-  value: true
+    value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -1048,8 +1027,12 @@ var _videojsChromecast2 = _interopRequireDefault(_videojsChromecast);
  * @param {Array} list
  */
 var plugin = function plugin(options) {
-  var player = this;
-  player.addChild('Chromecast', options);
+    if (options === false || options && options.enabled === false) {
+        return;
+    }
+
+    var player = this;
+    player.addChild('Chromecast', options);
 };
 
 var registerPlugin = _videoJs2['default'].registerPlugin || _videoJs2['default'].plugin;

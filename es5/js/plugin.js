@@ -1,7 +1,7 @@
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
-  value: true
+    value: true
 });
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -21,8 +21,12 @@ var _videojsChromecast2 = _interopRequireDefault(_videojsChromecast);
  * @param {Array} list
  */
 var plugin = function plugin(options) {
-  var player = this;
-  player.addChild('Chromecast', options);
+    if (options === false || options && options.enabled === false) {
+        return;
+    }
+
+    var player = this;
+    player.addChild('Chromecast', options);
 };
 
 var registerPlugin = _videoJs2['default'].registerPlugin || _videoJs2['default'].plugin;
