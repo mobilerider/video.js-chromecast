@@ -8,6 +8,10 @@ import Chromecast from './videojs-chromecast';
  * @param {Array} list
  */
 const plugin = function (options) {
+    if (options === false || (options && options.enabled === false)) {
+        return;
+    }
+
     let player = this
     player.addChild('Chromecast', options)
 };
